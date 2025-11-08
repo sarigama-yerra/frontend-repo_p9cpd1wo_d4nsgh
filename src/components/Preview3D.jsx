@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
-import Spline from '@splinetool/react-spline';
+import SafeSpline from './SafeSpline';
 
 /*
-  Lightweight 3D preview shell using a Spline scene placeholder.
-  We simulate fabric application and sizing by overlaying an info panel
-  that reflects user selections. In a real setup, you'd load a parametrized
-  rig and swap material textures based on the uploaded image and measurements.
+  3D preview using a Spline scene. We show a rich UI overlay that reflects
+  the user's selections. The Spline component is wrapped in an error boundary
+  to gracefully handle any scene loading issues.
 */
+
+const SCENE_URL = 'https://prod.spline.design/Qe6dlWJktclXcUBS/scene.splinecode';
 
 export default function Preview3D({ fabric, measurements, style }) {
   const info = useMemo(() => ({
@@ -20,9 +21,12 @@ export default function Preview3D({ fabric, measurements, style }) {
 
   return (
     <div className="relative h-[460px] w-full overflow-hidden rounded-2xl border bg-gradient-to-b from-gray-50 to-white">
-      <Spline scene="https://prod.spline.design/2oPVIv7jG0n8z92q/scene.splinecode" style={{ width: '100%', height: '100%' }} />
+      <SafeSpline scene={SCENE_URL} style={{ width: '100%', height: '100%' }} />
+
+      {/* Non-blocking gradient overlay for readability */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent" />
 
+      {/* Info panel */}
       <div className="absolute bottom-4 left-4 right-4 md:left-6 md:right-auto md:max-w-md">
         <div className="backdrop-blur supports-[backdrop-filter]:bg-white/60 bg-white/70 rounded-xl border p-4">
           <div className="flex items-center justify-between">
