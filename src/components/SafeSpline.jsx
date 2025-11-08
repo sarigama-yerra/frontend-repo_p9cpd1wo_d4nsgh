@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Spline from '@splinetool/react-spline';
 
 class ErrorBoundary extends React.Component {
@@ -12,8 +12,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    // You could log to an external service here
-    // console.error('Spline render error:', error, info);
+    // Optionally log errors
   }
 
   handleRetry = () => {
@@ -22,13 +21,15 @@ class ErrorBoundary extends React.Component {
 
   render() {
     const { hasError, error, retryKey } = this.state;
-    const { scene, className, style } = this.props;
+    const { scene, className, style, fallbackSrc } = this.props;
 
     if (hasError) {
       return (
-        <div className={`flex h-full w-full items-center justify-center ${className || ''}`}
-             style={style}>
-          <div className="max-w-md rounded-xl border bg-white/80 p-4 text-center backdrop-blur">
+        <div className={`relative flex h-full w-full items-center justify-center ${className || ''}`} style={style}>
+          {fallbackSrc ? (
+            <img src={fallbackSrc} alt="3D preview fallback" className="absolute inset-0 h-full w-full object-cover" />
+          ) : null}
+          <div className="relative z-10 max-w-md rounded-xl border bg-white/85 p-4 text-center backdrop-blur">
             <p className="font-medium text-gray-900">3D preview failed to load</p>
             <p className="mt-1 text-sm text-gray-600">{error?.message || 'There was a problem loading the 3D scene.'}</p>
             <button
@@ -50,10 +51,26 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export default function SafeSpline({ scene, className, style }) {
+export default function SafeSpline({ scene, className, style, fallbackSrc }) {
+  const [loading, setLoading] = useState(true);
+
   return (
-    <ErrorBoundary>
-      <Spline scene={scene} style={{ width: '100%', height: '100%' }} className={className} />
-    </ErrorBoundary>
+    <div className={`relative ${className || ''}`} style={style}>
+      {loading && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+          <div className="rounded-lg bg-white/80 px-3 py-1.5 text-sm text-gray-700 shadow">Loading 3D preview…</div>
+        </div>
+      )}
+      {fallbackSrc ? (
+        <img src={fallbackSrc} alt="3D preview placeholder" className="absolute inset-0 h-full w-full object-cover" />
+      ) : null}
+      <ErrorBoundary scene={scene} className="relative z-10" style={{ width: '100%', height: '100%' }} fallbackSrc={fallbackSrc}>
+        <Spline
+          scene={scene}
+          style={{ width: '100%', height: '100%' }}
+          onLoad={() => setLoading(false)}
+        />
+      </ErrorBoundary>
+    </div>
   );
 }
