@@ -1,28 +1,38 @@
-import { useState } from 'react'
+import React, { useState } from 'react';
+import Header from './components/Header';
+import FabricUploader from './components/FabricUploader';
+import MeasurementForm from './components/MeasurementForm';
+import StyleSelector from './components/StyleSelector';
+import Preview3D from './components/Preview3D';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [fabric, setFabric] = useState(null);
+  const [measurements, setMeasurements] = useState({ height: 170, bust: 90, waist: 70, hips: 95 });
+  const [style, setStyle] = useState('a-line');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 text-gray-900">
+      <Header />
+      <main className="mx-auto max-w-6xl px-4 pb-16">
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+          <div className="space-y-6">
+            <FabricUploader onChange={setFabric} />
+            <MeasurementForm value={measurements} onChange={setMeasurements} />
+            <StyleSelector value={style} onChange={setStyle} />
+          </div>
+          <div className="space-y-6">
+            <Preview3D fabric={fabric} measurements={measurements} style={style} />
+            <div className="bg-white rounded-xl border p-5">
+              <h3 className="font-medium text-gray-900">How this works</h3>
+              <p className="mt-2 text-sm text-gray-600">
+                This demo prepares your selections for a 3D render: fabric image as material texture, measurements as body
+                parameters, and style as dress silhouette. Connect it to a backend later to generate a full character and
+                garment fit preview.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
-  )
+  );
 }
-
-export default App
